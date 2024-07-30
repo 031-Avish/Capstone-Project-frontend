@@ -1,7 +1,7 @@
 const BASE_URL = 'https://localhost:7188/api';
 export const loginUser = async (credentials) => {
     try{
-        const response = await fetch(`${BASE_URL}/UseroginRegister/Login`, {
+        const response = await fetch(`${BASE_URL}/UserLoginRegister/Login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
