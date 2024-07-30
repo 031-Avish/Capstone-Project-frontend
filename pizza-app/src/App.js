@@ -1,12 +1,22 @@
-import{BrowserRouter as Router, Route} from 'react-router-dom';
+import{BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import {userContext} from 'react';
 import AuthContext from './store/auth-context';
-import './App.css';
+// import Home from './Pages/Home';
+import Login from './Pages/Login';
+import Signup from './Pages/Signup';
+
 
 function App() {
   return (
-    <div className="App">
-      
+    <div className="h-screen select-none">
+      <Router>
+        <Routes>
+          {/* <Route exact path="/" element={<Home />} /> */}
+          <Route exact path="/login" element={<Login />} />
+          <Route exact path="/signup" element={<Signup />} />
+          
+        </Routes>
+      </Router>
     </div>
   );
 }
