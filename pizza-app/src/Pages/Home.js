@@ -11,6 +11,6 @@ export default function Home() {
     return (
         <div className="homepage__content p-5">
             
-        </div>
+    </div>
     )
 }
