@@ -5,6 +5,7 @@ import Home from './Pages/Home';
 import Login from './Pages/Login';
 import Signup from './Pages/Signup';
 import Navbar from './Pages/Navbar';
+import Menu from './Pages/Menu';
 
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
           <Route exact path="/" element={<Home />} />
           <Route exact path="/login" element={<Login />} />
           <Route exact path="/signup" element={<Signup />} />
-          
+          <Route exact path="/menu" element={<Menu />} />
         </Routes>
       </Router>
     </div>

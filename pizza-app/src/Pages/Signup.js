@@ -18,20 +18,22 @@ export default function Signup() {
     const handleSignup = async (e) => {
         setIsLoading(true);
         e.preventDefault();
-        if(!isLoading){
-            const response = await signupUser({
-                email,
-                password,
-                name,
-                phone
-            });
-            if(response.error){
-                alert(response.message);
-            }
-            else{
-                alert('Signup successful');
+        try{
+            if(!isLoading){
+                const response = await signupUser({
+                    email,
+                    password,
+                    name,
+                    phone
+                });
+                console.log(response);
+                showAlert('Signup Successful','success');
                 navigate('/login',{replace:true});
             }
+            setIsLoading(false);
+        }
+        catch(error){
+            showAlert(error.errorMessage || error.title || "Something went wrong",'danger');
             setIsLoading(false);
         }
     }
