@@ -1,13 +1,13 @@
 import './CSS/Home.css';
 import {BuyNowButton} from '../Components/BuyNowButton';
-
-import {Footer} from '../Components/Footer';
+import logo from '../Components/Media/bg.jpg';
 import { useContext } from 'react';
 import AuthContext
  from '../store/auth-context';
 
 function HomePageContent() {
     const authContext = useContext(AuthContext);
+    console.log(authContext);
     return (
         <div className="homepage__content p-5">
             <div className="homepage__content__title">
@@ -37,32 +37,31 @@ function HomePageContent() {
     </div>
     )
 }
-function HomeIllustration() {
-    return (
-        <div className='bg-image hidden md:block h-full w-full'>
-        </div>
-    )
-}
+
 
 export default function Home() {
     return (
         <>
-            <div className="
-            homepage
-            h-5/6 
-            grid 
-            grid-cols-1 
-            md:items-center 
-            md:justify-items-center 
-            md:grid-cols-2 
-            bg-[url('https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')] 
-            md:bg-none
-            ">
-                <HomePageContent />
-                <HomeIllustration />
-            </div>
+    
+             <div className="
+      homepage
+      h-screen  // Changed to h-screen to take full viewport height
+      bg-cover
+      bg-center
+      bg-no-repeat
+      flex
+      
+      
+      md:items-center 
+      ml-12
+    "
+      style={{ backgroundImage: `url(${logo})` }}
+    >
+      <HomePageContent />
+     
+    </div>
 
-            <Footer />
+           
         </>
     )
 }

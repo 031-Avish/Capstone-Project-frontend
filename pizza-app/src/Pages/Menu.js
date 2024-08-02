@@ -11,6 +11,7 @@ export default function Menu() {
     const fetchMenu = async (fetchFunction) => {
         try {
             const response = await fetchFunction();
+            console.log(response);
             setMenuItems(response);
         } catch (error) {
             showAlert(error.errorMessage || error.title || "Something went wrong", 'danger');
@@ -22,9 +23,15 @@ export default function Menu() {
     }, []);
 
     return (
-        <div className="menu p-5">
+        <div className="min-h-screen menu p-5" style={{ background: '#e7ecef' }}>
             
             <div className="menu__options flex justify-center mb-5">
+                <button 
+                    onClick={() => fetchMenu(getMenu)}
+                    className="mx-2 bg-red-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+                >
+                    All
+                </button>
                 <button 
                     onClick={() => fetchMenu(getNewlyAddedPizzas)}
                     className="mx-2 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
@@ -49,7 +56,7 @@ export default function Menu() {
             </div>
             <div className="menu__list flex flex-wrap justify-center">
                 {menuItems.map(item => (
-                    <PizzaCard key={item.pizzaId} item={item} token={authContext.token} />
+                    <PizzaCard key={item.pizzaId} item={item}  />
                 ))}
             </div>
         </div>

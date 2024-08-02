@@ -120,11 +120,16 @@ export function PizzaCard(props) {
 
             <div className="pizza__add mb-1 flex justify-between items-center">
                 <AddToCartButton 
-                    itemId={props.item.pizzaId} 
-                    token={props.token} 
+                    pizzaId={props.item.pizzaId}
                     toppings={selectedToppings}
                     selectedSize={selectedSize}
                     selectedCrust={selectedCrust} 
+                    quantity = {1}
+                    setSelectedCrust={setSelectedCrust}
+                    setSelectedSize={setSelectedSize}
+                    setSelectedToppings={setSelectedToppings}
+                    defaultCrust={defaultCrust}
+                    defaultSize={defaultSize}
                 />
                 <button onClick={openToppingsModal} className="mx-2 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition">
                     {selectedToppings.length > 0 ? "Update Toppings" : "Add Toppings"}
