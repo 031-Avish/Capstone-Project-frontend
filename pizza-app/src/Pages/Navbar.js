@@ -14,7 +14,8 @@ export default function Navbar() {
 
     return(
         <>
-            <div className='navbar h-24 items-center flex justify-around p-5 md:px-28 md:py-5'>
+        <div className='shadow-lg'>
+            <div className='navbar h-24 items-center flex justify-around p-5 ml-12 mr-8 md:py-5 '>
             <Banner />
 
                 <button className='md:hidden ml-28' onClick={()=>{ isOpen === false ? setIsOpen(true) : setIsOpen(false) }}>
@@ -39,6 +40,7 @@ export default function Navbar() {
                 <div>
                     <AuthLink isLoggedIn={isLoggedIn} />
                 </div>
+            </div>
             </div>
         </>
     );

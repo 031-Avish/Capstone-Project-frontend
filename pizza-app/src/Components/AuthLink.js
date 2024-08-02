@@ -6,6 +6,7 @@ import { Popover } from "@headlessui/react";
 
 function ProfileButton(){
     const authContext = useContext(AuthContext);
+    console.log(authContext);
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -47,7 +48,7 @@ function ProfileButton(){
                     <Popover.Panel className="absolute z-10">
                         <div className="grid grid-cols-1 bg-white shadow-2xl border-2 w-48 rounded-lg p-2">
                             <div className="my-2 flex justify-center items-center font-medium">
-                                {`${titleCase(authContext.user.name)}`}
+                                {`${titleCase(authContext.user.Email)}`}
                             </div>
                             <hr className="bg-black" />
 

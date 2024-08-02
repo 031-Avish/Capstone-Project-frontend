@@ -1,11 +1,11 @@
 import './CSS/Footer.css';
-
+import logo from './Media/logo.png'
 function CompanyName() {
     return (
         <>
             <div className='company flex items-center justify-items-center my-2'>
                 <div className='footer__company__logo mx-2'>
-                    <img src='/logo512.png' alt='logo' width='50px' height='50px' />
+                    <img src={logo} alt='logo' width='50px' height='50px' />
                 </div>
 
                 <div className='footer__company__name mx-2 text-white font-medium'>
@@ -21,11 +21,7 @@ function FollowMe() {
         <>
             <div className='footer__followme mt-5'>
                 <div className='text-white mb-3'>
-                    Check Out Us At <span>
-                        <a className='text-amber-400' rel="noreferrer" target='_blank' href="https://www.kalashsharma.me">
-                            Avish 
-                        </a>
-                    </span>
+                    Check Out Us At 
                 </div>
             </div>
 
