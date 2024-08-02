@@ -1,0 +1,39 @@
+.order-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.order-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+}
+
+.order-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.status-text {
+    font-weight: bold;
+}
+
+.status-text.success {
+    color: #4caf50; /* Green */
+}
+
+.status-text.failed {
+    color: #f44336; /* Red */
+}
+
+.status-text.completed {
+    color: #2196f3; /* Blue */
+}
+
+.cancel-button {
+    display: inline-block;
+    margin-top: 10px;
+}
