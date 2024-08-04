@@ -6,14 +6,13 @@ import { Popover } from "@headlessui/react";
 
 function ProfileButton(){
     const authContext = useContext(AuthContext);
-    console.log(authContext);
+    // console.log(authContext);
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         const token = authContext.token;
         try{
             const response = await logoutUser(token);
-            console.log(response);
             authContext.logout();
             navigate('/',{replace:true});
         }
@@ -21,14 +20,7 @@ function ProfileButton(){
             console.log(error);
         }
     }
-    const titleCase = (str) => {
-        // str.toLowerCase().split(' ');
-        // // str = str.toLowerCase().split(' ');
-        // for (var i = 0; i < str.length; i++) {
-        //   str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
-        // }
-        // return str.join(' ');
-    }
+    
     function logoutUser() {
         authContext.logout();
         navigate('/', { replace: true });
@@ -48,7 +40,7 @@ function ProfileButton(){
                     <Popover.Panel className="absolute z-10">
                         <div className="grid grid-cols-1 bg-white shadow-2xl border-2 w-48 rounded-lg p-2">
                             <div className="my-2 flex justify-center items-center font-medium">
-                                {`${titleCase(authContext.user.Email)}`}
+                                {`${authContext.user.name}`}
                             </div>
                             <hr className="bg-black" />
 

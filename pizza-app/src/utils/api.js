@@ -1,4 +1,4 @@
-const BASE_URL = 'https://localhost:7188/api';
+const BASE_URL = 'https://pizzaapp-hte6azhwd7fth9b0.westus2-01.azurewebsites.net/api';
 export const loginUser = async (credentials) => {
     try{
         const response = await fetch(`${BASE_URL}/UserLoginRegister/Login`, {
@@ -92,7 +92,7 @@ export const addItemToCart = async (userId, pizzaId, sizeId, crustId, quantity, 
         }
         return await response.json();
     } catch (error) {
-        console.error('Add item to cart error:', error);
+       
         throw error; // Rethrow the error after logging it
     }
 };
@@ -116,14 +116,13 @@ export const addBeverageToCart = async (token , userId, beverageId, quantity) =>
         }
         return await response.json();
     } catch (error) {
-        console.error('Add item to cart error:', error);
+        
         throw error; // Rethrow the error after logging it
     }
 }
 
 export const getCartItems=async(token,userId)=>{
-    console.log(token);
-    console.log(userId);
+   
     try {
         const response = await fetch(`${BASE_URL}/Cart/user/${userId}`, {
             method: 'GET',
@@ -159,14 +158,11 @@ export const getAllBeverages = async () => {
 
         return await response.json();
     } catch (error) {
-        console.error('Get beverages error:', error);
+       
         throw error;
     }
 }
 
-
-export const deleteCartItem = async (cartItemId) => {
-}
 export const removeItemFromCart = async (token, userId,cartItemId) => {
     try {
         const response = await fetch(`${BASE_URL}/Cart/remove`, {
@@ -228,11 +224,49 @@ export const getNewlyAddedPizzas = async () => {
 
         return await response.json();
     } catch (error) {
-        console.error('Get newly added pizzas error:', error);
+        
         throw error;
     }
 };
-export const getMostSoldPizzas = async () => {};
+export const getVegPizza = async () => {
+    try{
+        const response = await fetch(`${BASE_URL}/Pizza/all`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw error;
+        }
+        const pizzas = await response.json();
+        return pizzas.filter(pizza => pizza.isVegetarian);
+    }
+    catch(error){   
+        throw error;
+    }
+}
+export const getMostSoldPizzas = async () => {
+    try{
+        const response = await fetch(`${BASE_URL}/Pizza/most-sold`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw error;
+        }
+        return await response.json();
+
+    }
+    catch(error){
+        throw error;
+    }
+};
 export const getCheesePizzas = async () => {
     try {
         
@@ -248,7 +282,7 @@ export const getCheesePizzas = async () => {
             throw error;
         }
         const pizzas = await response.json();
-        console.log(pizzas);
+       
         return pizzas.filter(pizza => pizza.
             description
             .toLowerCase().includes('extra cheese'));

@@ -1,8 +1,5 @@
-import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AuthContext from '../store/auth-context';
-function verifyPayment(data) {
-}
+
+
 export function loadScript(src) {
     return new Promise((resolve) => {
         const script = document.createElement('script');
@@ -17,19 +14,20 @@ export function loadScript(src) {
         document.body.appendChild(script);
     });
 }
-
 export const displayRazorpay = async (props) => {
-   
+    
+    // razorpay payment gateway
     const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
-
+    // error handling
     if (!res) {
         alert('Razorpay SDK failed to load. Are you online?');
         return;
     }
-    console.log(props);
+    // console.log(props);
 
     // creating a new order
-    const orderResponse = await fetch('https://localhost:7188/api/Order/add', {
+    
+    const orderResponse = await fetch('https://pizzaapp-hte6azhwd7fth9b0.westus2-01.azurewebsites.net/api/Order/add', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -44,6 +42,7 @@ export const displayRazorpay = async (props) => {
     });
 
     const orderData = await orderResponse.json();
+    props.setPayLoading(false);
     if(!orderResponse.ok){
         alert(orderData.errorMessage || orderData.title || "Something went wrong");
         return;
@@ -60,7 +59,7 @@ export const displayRazorpay = async (props) => {
         image : '/logo512.png',
         order_id : rorderID,
         handler: async function (response){
-            console.log(response);
+            // console.log(response);
             const data = {
                 orderId: orderId,
                 razorpayPaymentId: response.razorpay_payment_id,
@@ -70,7 +69,7 @@ export const displayRazorpay = async (props) => {
                 cartId: props.cartId, 
             };
             // verifyPayment(data);
-            const paymentResponse = await fetch('https://localhost:7188/api/Payment/verify', {
+            const paymentResponse = await fetch('https://pizzaapp-hte6azhwd7fth9b0.westus2-01.azurewebsites.net/api/Payment/verify', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

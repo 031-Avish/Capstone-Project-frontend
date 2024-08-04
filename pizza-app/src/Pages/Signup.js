@@ -26,7 +26,7 @@ export default function Signup() {
                     name,
                     phone
                 });
-                console.log(response);
+                // console.log(response);
                 showAlert('Signup Successful','success');
                 navigate('/login',{replace:true});
             }

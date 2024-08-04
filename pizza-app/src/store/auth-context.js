@@ -45,7 +45,6 @@ const Alert = ({ message, type, onClose }) => {
 export const AuthContextProvider = (props) => {
     const [token, setToken] = useState(null);
     const [alert, setAlert] = useState({ message: '', type: '' });
-
     // Check if the token is saved in the local storage
     useEffect(() => {
         const savedToken = localStorage.getItem('token');
@@ -76,7 +75,7 @@ export const AuthContextProvider = (props) => {
         setAlert({ message, type });
         setTimeout(() => setAlert({ message: '', type: '' }), 4000); // Auto-close after 4 seconds
     };
-
+ 
     // Context value to be passed to the provider
     const contextValue = {
         token: token,

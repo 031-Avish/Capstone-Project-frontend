@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import AuthContext from '../store/auth-context';
+import Loading from '../Components/Loading';
 
 const Order = () => {
     const [orders, setOrders] = useState([]);
@@ -11,13 +12,12 @@ const Order = () => {
         try {
             if (!authContext.token || !authContext.user) return;
 
-            const response = await fetch(`https://localhost:7188/api/Order/user/${authContext.user.Id}`);
+            const response = await fetch(`https://pizzaapp-hte6azhwd7fth9b0.westus2-01.azurewebsites.net/api/Order/user/${authContext.user.Id}`);
             if (!response.ok) {
                 const error = await response.json();
                 throw error;
             }
             const data = await response.json();
-            console.log(data);
             data.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
             setOrders(data);
             setLoading(false);
@@ -62,7 +62,7 @@ const Order = () => {
     return (
 
         <div className='order-page min-h-screen p-5' >
-            {loading && <p className="text-center">Loading...</p>}
+            {loading && <Loading/>}
             {! loading && 
             <div>
             <h1 className="text-3xl font-bold mb-6">Your Orders</h1>
@@ -117,7 +117,7 @@ const Order = () => {
                                         'Order completed'
                                     ) : order.orderStatus === 'Canceled' ? (
                                         'You canceled the order'
-                                    ) : (
+                                    ) : order.orderStatus === 'Prepared' ? ('Your Order is Prepared'):(
                                         'Order failed'
                                     )}
                                 </p>

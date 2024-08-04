@@ -1,7 +1,8 @@
 import { useState,useEffect } from "react";
 import { AddToCartButton } from './AddToCartButton';
 import { AddToppingsModal } from "./AddToppingModal";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faLeaf, faDrumstickBite } from "@fortawesome/free-solid-svg-icons";
 export function PizzaCard(props) {
     const defaultSize = props.item.sizes.find(s => s.sizeId === 1);
     const defaultCrust = props.item.crusts.find(c => c.crustId === 1);
@@ -10,6 +11,7 @@ export function PizzaCard(props) {
     const [isToppingsModalOpen, setToppingsModalOpen] = useState(false);
     const [pizzaPrice , setPizzaPrice] = useState(props.item.basePrice);   
     const [selectedToppings, setSelectedToppings] = useState([]);
+    // it calculates the price of the pizza
     const calculatePrice = () => {
         let price = 0;
         
@@ -21,9 +23,11 @@ export function PizzaCard(props) {
         });
         setPizzaPrice(price.toFixed(2));
     }
+
     useEffect(() => {
         calculatePrice();
     }, [selectedSize, selectedCrust, selectedToppings]);
+
     const handleSizeChange = (e) => {
         const size = props.item.sizes.find(s => s.sizeId === parseInt(e.target.value));
         setSelectedSize(size);
@@ -62,9 +66,10 @@ export function PizzaCard(props) {
 
             <div className="pizza__veg-nonveg flex justify-center items-center mb-3">
                 {props.item.isVegetarian ? (
-                    <img src="/veg-icon.png" alt="Vegetarian" className="h-5 w-5" />
+                    <FontAwesomeIcon icon={faLeaf} className="text-green-500 ml-2" title="Vegetarian" />
                 ) : (
-                    <img src="/non-veg-icon.png" alt="Non-Vegetarian" className="h-5 w-5" />
+                    <FontAwesomeIcon icon={faDrumstickBite} className="text-red-500 ml-2" title="Non-Vegetarian" />
+
                 )}
             </div>
 

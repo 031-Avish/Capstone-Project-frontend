@@ -1,13 +1,13 @@
 import './CSS/Home.css';
 import {BuyNowButton} from '../Components/BuyNowButton';
 import logo from '../Components/Media/bg.jpg';
+
 import { useContext } from 'react';
-import AuthContext
- from '../store/auth-context';
+import AuthContext from '../store/auth-context';
 
 function HomePageContent() {
     const authContext = useContext(AuthContext);
-    console.log(authContext);
+   
     return (
         <div className="homepage__content p-5">
             <div className="homepage__content__title">
@@ -42,26 +42,20 @@ function HomePageContent() {
 export default function Home() {
     return (
         <>
-    
-             <div className="
-      homepage
-      h-screen  // Changed to h-screen to take full viewport height
-      bg-cover
-      bg-center
-      bg-no-repeat
-      flex
-      
-      
-      md:items-center 
-      ml-12
-    "
-      style={{ backgroundImage: `url(${logo})` }}
-    >
-      <HomePageContent />
-     
-    </div>
-
-           
+            <div className="
+                    homepage
+                    h-screen  
+                    bg-cover
+                    bg-center
+                    bg-no-repeat
+                    flex
+                    md:items-center 
+                    ml-12
+                    "
+                    style={{ backgroundImage: `url(${logo})` }}
+                    >
+                <HomePageContent />
+            </div>   
         </>
     )
 }

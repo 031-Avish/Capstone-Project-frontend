@@ -1,19 +1,13 @@
-import { useContext } from "react";
+
 import { useNavigate } from "react-router-dom";
-import AuthContext from "../store/auth-context";
+
 
 export function BuyNowButton() {
-    const authCtx = useContext(AuthContext);
-    const isLoggedIn = authCtx.isLoggedIn;
+    
     const navigator = useNavigate();
 
     const handleClick = () => {
-        // if logged in redirect to menu page
-        if(isLoggedIn)
-            navigator('/menu');
-        // else redirect to login page
-        else
-            navigator('/login');
+        navigator('/menu');
     }
 
     return (

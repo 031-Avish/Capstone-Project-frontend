@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import AuthContext from "../store/auth-context";
 import { loginUser } from "../utils/api";
 import Spinner from "../Components/Spinner";
+import { jwtDecode } from "jwt-decode";
 export default function Login() {
     const {showAlert} = useContext(AuthContext);  
     const [email, setEmail] = useState();
@@ -22,11 +23,15 @@ export default function Login() {
                     email,
                     password
                 });
-                console.log(response);
+                // console.log(response);
                 authContext.login(response.token);
                 showAlert('Login Successful','success');
                 // replace true because we don't want the user to go back to the login page
+                if(jwtDecode(response.token).role === 'Admin'){
+                    navigate('/adminhome',{replace:true});
+                }else{
                 navigate('/',{replace:true});
+                }
                 
             }
             setIsLoading(false);

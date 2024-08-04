@@ -1,128 +1,262 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import AuthContext from '../store/auth-context';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLeaf, faDrumstickBite } from '@fortawesome/free-solid-svg-icons';
+import Modal from "react-modal";
 
-export function EditCartItemModal({ closeModal, cartItem, isVegetarian }) {
+export function EditCartItemModal({ cartItem, isVegetarian, updateCartItem, setCart, isEditModalOpen, setIsEditModalOpen }) {
+    const authContext = useContext(AuthContext);
     const [toppings, setToppings] = useState([]);
-    const [selectedToppings, setSelectedToppings] = useState(cartItem.topping);
-    const [crusts, setCrusts] = useState([]);
-    const [sizes, setSizes] = useState([]);
-    const [selectedCrust, setSelectedCrust] = useState(cartItem.crust.crustId);
-    const [selectedSize, setSelectedSize] = useState(cartItem.size.sizeId);
-    const [quantity, setQuantity] = useState(cartItem.quantity);
-    const [pizzaDetails, setPizzaDetails] = useState(cartItem.pizza);
+    const [selectedToppings, setSelectedToppings] = useState([]);
+    const [pizzaDetails, setPizzaDetails] = useState(null);
+    const [selectedCrust, setSelectedCrust] = useState(null);
+    const [selectedSize, setSelectedSize] = useState(null);
+    const [quantity, setQuantity] = useState(1);
+    const [pizzaPrice, setPizzaPrice] = useState(0);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [toppingsResponse, crustsResponse, sizesResponse] = await Promise.all([
-                    fetch('https://localhost:7188/api/Topping/all'),
-                    fetch('https://localhost:7188/api/Crust/all'),
-                    fetch('https://localhost:7188/api/Size/all')
+                const [toppingsResponse, pizzaResponse] = await Promise.all([
+                    fetch('https://pizzaapp-hte6azhwd7fth9b0.westus2-01.azurewebsites.net/api/Topping/all'),
+                    fetch(`https://pizzaapp-hte6azhwd7fth9b0.westus2-01.azurewebsites.net/api/Pizza/${cartItem.pizza.pizzaId}`)
                 ]);
 
                 const toppingsData = await toppingsResponse.json();
-                const crustsData = await crustsResponse.json();
-                const sizesData = await sizesResponse.json();
+                const pizzaData = await pizzaResponse.json();
 
                 if (isVegetarian) {
                     setToppings(toppingsData.filter(t => t.isVegetarian));
                 } else {
                     setToppings(toppingsData);
                 }
-                setCrusts(crustsData);
-                setSizes(sizesData);
+                setPizzaDetails(pizzaData);
+                setSelectedToppings(cartItem.topping);
+                setSelectedCrust(cartItem.crust.crustId);
+                setSelectedSize(cartItem.size.sizeId);
+                setQuantity(cartItem.quantity);
+                setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch data:", error);
             }
         }
-        fetchData();
-    }, [isVegetarian]);
+        
+        if (cartItem) {
+            fetchData();
+        }
+    }, [cartItem, isVegetarian]);
+
+    useEffect(() => {
+        if (pizzaDetails) {
+            calculatePrice();
+        }
+    }, [pizzaDetails, selectedSize, selectedCrust, selectedToppings]);
 
     const handleAddTopping = (toppingId) => {
-        const toppingIndex = selectedToppings.findIndex(t => t.toppingId === toppingId);
-        if (toppingIndex !== -1) {
-            const updatedToppings = [...selectedToppings];
-            updatedToppings[toppingIndex].quantity += 1;
-            updatedToppings[toppingIndex].name = toppings.find(t => t.toppingId === toppingId).name;
-            setSelectedToppings(updatedToppings);
-        } else {
-            const topping = toppings.find(t => t.toppingId === toppingId);
-            setSelectedToppings([...selectedToppings, { ...topping, quantity: 1 }]);
-        }
+        setSelectedToppings(prevToppings => {
+            const toppingIndex = prevToppings.findIndex(t => t.toppingId === toppingId);
+            if (toppingIndex !== -1) {
+                const updatedToppings = [...prevToppings];
+                updatedToppings[toppingIndex].quantity += 1;
+                updatedToppings[toppingIndex].name = toppings.find(t => t.toppingId === toppingId).name;
+                return updatedToppings;
+            } else {
+                const topping = toppings.find(t => t.toppingId === toppingId);
+                return [...prevToppings, { ...topping, quantity: 1 }];
+            }
+        });
     };
 
     const handleIncreaseQuantity = (toppingId) => {
-        const updatedToppings = selectedToppings.map(t => 
-            t.toppingId === toppingId ? { ...t, quantity: t.quantity + 1 } : t
-        );
-        setSelectedToppings(updatedToppings);
+        setSelectedToppings(prevToppings => {
+            const updatedToppings = prevToppings.map(t => 
+                t.toppingId === toppingId ? { ...t, quantity: t.quantity + 1 } : t
+            );
+            return updatedToppings;
+        });
     };
 
     const handleDecreaseQuantity = (toppingId) => {
-        const updatedToppings = selectedToppings
-            .map(t => t.toppingId === toppingId ? { ...t, quantity: t.quantity - 1 } : t)
-            .filter(t => t.quantity > 0);
-        setSelectedToppings(updatedToppings);
+        setSelectedToppings(prevToppings => {
+            const updatedToppings = prevToppings
+                .map(t => t.toppingId === toppingId ? { ...t, quantity: t.quantity - 1 } : t)
+                .filter(t => t.quantity > 0);
+            return updatedToppings;
+        });
     };
 
-    const handleSave = () => {
-        const updatedCartItem = {
-            ...cartItem,
-            quantity,
-            crust: crusts.find(c => c.crustId === selectedCrust),
-            size: sizes.find(s => s.sizeId === selectedSize),
-            topping: selectedToppings
-        };
-        closeModal(updatedCartItem);
+    const handleSave = async () => {
+        let data = {};
+        if (cartItem.pizza) {
+            const toppingIds = {};
+            selectedToppings.forEach(topping => {
+                toppingIds[topping.toppingId] = topping.quantity;
+            });
+            data = {
+                "userId": authContext.user.Id,
+                "cartItemId": cartItem.cartItemId,
+                "pizzaId": cartItem.pizza.pizzaId,
+                "sizeId": selectedSize,
+                "crustId": selectedCrust,
+                "quantity": quantity,
+                toppingIds
+            };
+        }
+        try {
+            const res = await updateCartItem(authContext.token, authContext.user.Id, data);
+            authContext.showAlert('Item quantity updated', 'success');
+            setCart(res);
+        } catch (error) {
+            authContext.showAlert(error.errorMessage || error.title || "Something went wrong", 'danger');
+        }
+        // Reset state after saving
+        setSelectedToppings([]);
+        setIsEditModalOpen(false);
+        setPizzaDetails(null);
+        setQuantity(1);
+        setSelectedCrust(null);
+        setSelectedSize(null);
+        setPizzaPrice(0);
+        setLoading(true);
     };
+
+    const calculatePrice = () => {
+        let price = 0;
+
+        if (pizzaDetails) {
+            const size = pizzaDetails.sizes.find(s => s.sizeId === selectedSize);
+            const crust = pizzaDetails.crusts.find(c => c.crustId === selectedCrust);
+
+            if (size && crust) {
+                price += size.sizeMultiplier * pizzaDetails.basePrice;
+                price *= crust.priceMultiplier;
+
+                selectedToppings.forEach(topping => {
+                    price += topping.price * topping.quantity;
+                });
+            }
+        }
+        setPizzaPrice(price.toFixed(2));
+    };
+
+    const handleSizeChange = (e) => {
+        const sizeId = parseInt(e.target.value);
+        setSelectedSize(sizeId);
+        if (pizzaDetails?.sizes.find(s => s.sizeId === sizeId)?.sizeName === "Large") {
+            setSelectedCrust(1); // Default to crustId 1 for Large size
+        }
+    };
+
+    const handleCrustChange = (e) => {
+        setSelectedCrust(parseInt(e.target.value));
+    };
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
-        <div className="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <Modal
+            isOpen={isEditModalOpen}
+            onRequestClose={() => { setIsEditModalOpen(false); }}
+            contentLabel="Edit Modal"
+            className="fixed inset-0 flex items-center justify-center z-50"
+            overlayClassName="fixed inset-0 bg-gray-600 bg-opacity-50"
+        >
             <div className="modal-content p-5 rounded shadow-lg bg-white max-w-md w-full">
-                <h2 className="text-lg font-bold mb-3">Edit {pizzaDetails.name}</h2>
-                <p>{pizzaDetails.description}</p>
-                <div className="mb-3">
-                    <label className="block mb-1">Select Crust</label>
-                    <select value={selectedCrust} onChange={(e) => setSelectedCrust(Number(e.target.value))} className="w-full p-2 border rounded">
-                        {crusts.map(crust => (
-                            <option key={crust.crustId} value={crust.crustId}>{crust.crustName} - Multiplier: {crust.priceMultiplier}</option>
-                        ))}
-                    </select>
+                <div className="flex justify-between items-center mb-3">
+                    <h2 className="text-lg font-bold">Edit {pizzaDetails?.name}</h2>
+                    <button onClick={() => { setIsEditModalOpen(false); }} className="text-red-500 text-xl font-bold">&times;</button>
                 </div>
-                <div className="mb-3">
-                    <label className="block mb-1">Select Size</label>
-                    <select value={selectedSize} onChange={(e) => setSelectedSize(Number(e.target.value))} className="w-full p-2 border rounded">
-                        {sizes.map(size => (
-                            <option key={size.sizeId} value={size.sizeId}>{size.sizeName} - Multiplier: {size.sizeMultiplier}</option>
-                        ))}
-                    </select>
+                <p>{pizzaDetails?.description}</p>
+                <div className="pizza__veg-nonveg flex justify-center items-center mb-3">
+                    {pizzaDetails?.isVegetarian ? (
+                        <FontAwesomeIcon icon={faLeaf} className="text-green-500 ml-2" title="Vegetarian" />
+                    ) : (
+                        <FontAwesomeIcon icon={faDrumstickBite} className="text-red-500 ml-2" title="Non-Vegetarian" />
+                    )}
                 </div>
-                <div className="mb-3">
-                    <label className="block mb-1">Quantity</label>
-                    <input type="number" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} className="w-full p-2 border rounded" />
+                <div className="pizza__price flex justify-center items-center text-base mb-3">
+                    <span className="mr-1">₹</span>{pizzaPrice}
                 </div>
-                <div>
-                    <h3 className="text-lg font-bold mb-2">Select Toppings</h3>
-                    <ul className="mb-3">
-                        {toppings.map(topping => (
-                            <li key={topping.toppingId} className="mb-2 flex justify-between items-center">
-                                <span>{topping.name} - ₹{topping.price}</span>
-                                {selectedToppings.some(t => t.toppingId === topping.toppingId) ? (
-                                    <div className="flex items-center">
-                                        <button onClick={() => handleDecreaseQuantity(topping.toppingId)} className="bg-red-500 text-white px-2 rounded">-</button>
-                                        <span className="mx-2">{selectedToppings.find(t => t.toppingId === topping.toppingId).quantity}</span>
-                                        <button onClick={() => handleIncreaseQuantity(topping.toppingId)} className="bg-green-500 text-white px-2 rounded">+</button>
-                                    </div>
-                                ) : (
-                                    <button onClick={() => handleAddTopping(topping.toppingId)} className="bg-blue-500 text-white px-2 rounded">Add</button>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
+                <div className="flex justify-center items-center">
+                    <div className="pizza__size mb-3 px-2">
+                        <select onChange={handleSizeChange} value={selectedSize || ''} className="w-full p-2 border rounded">
+                            {pizzaDetails?.sizes.map(size => (
+                                <option key={size.sizeId} value={size.sizeId}>{size.sizeName}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="pizza__crust mb-3 px-2">
+                        <select 
+                            onChange={handleCrustChange} 
+                            value={selectedCrust || ''} 
+                            className="w-full p-2 border rounded"
+                            disabled={selectedSize && pizzaDetails?.sizes.find(s => s.sizeId === selectedSize)?.sizeName === "Large" && selectedCrust !== 1}
+                        >
+                            {pizzaDetails?.crusts.map(crust => (
+                                <option 
+                                    key={crust.crustId} 
+                                    value={crust.crustId}
+                                    disabled={selectedSize && pizzaDetails?.sizes.find(s => s.sizeId === selectedSize)?.sizeName === "Large" && crust.crustId !== 1}
+                                >
+                                    {crust.crustName}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
-                <div className="flex justify-end">
-                    <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+                <div className="pizza__toppings mb-3 px-2">
+                    {selectedToppings.length > 0 && (
+                        <div>
+                            <div className="font-bold mb-2">Selected Toppings:</div>
+                            <ul>
+                                {selectedToppings.map(topping => (
+                                    <li key={topping.toppingId} className="flex justify-between items-center mb-2">
+                                        <span>{topping.name} - ₹{topping.price}</span>
+                                        <div className="flex items-center">
+                                            <button onClick={() => handleDecreaseQuantity(topping.toppingId)} className="bg-red-500 text-white px-2 py-1 rounded">-</button>
+                                            <span className="mx-2">{topping.quantity}</span>
+                                            <button onClick={() => handleIncreaseQuantity(topping.toppingId)} className="bg-green-500 text-white px-2 py-1 rounded">+</button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                    <div>
+                        <div className="font-bold mb-2">Add Toppings:</div>
+                        <div className="grid grid-cols-2 gap-2">
+                            {toppings.map(topping => (
+                                <button 
+                                    key={topping.toppingId} 
+                                    onClick={() => handleAddTopping(topping.toppingId)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                                >
+                                    {topping.name} - ₹{topping.price}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
+                <div className="flex justify-between items-center mb-3">
+                    <span className="font-bold">Quantity:</span>
+                    <input 
+                        type="number" 
+                        value={quantity} 
+                        onChange={(e) => setQuantity(parseInt(e.target.value))}
+                        className="w-20 p-2 border rounded"
+                        min="1"
+                    />
+                </div>
+                <button 
+                    onClick={handleSave} 
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                >
+                    Save
+                </button>
             </div>
-        </div>
+        </Modal>
     );
 }
